@@ -1,7 +1,2 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient({
-    // Prisma v7 бере DATABASE_URL з process.env автоматично
-});
-
-export default prisma;
+// TEMPORARILY DISABLED FOR DEPLOY
+export const prisma = null as any;
