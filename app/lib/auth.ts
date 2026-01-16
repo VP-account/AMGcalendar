@@ -2,7 +2,8 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcryptjs"; // перевірка хешованого пароля
-import prisma from '@/app/lib/prisma';
+import prisma from '@/app/lib/db';
+
 
 export const authOptions: NextAuthOptions = {
     providers: [
