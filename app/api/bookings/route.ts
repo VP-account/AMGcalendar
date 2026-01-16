@@ -2,7 +2,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../lib/auth";
-import prisma from '@/app/lib/prisma';
+import prisma from '@/app/lib/db';
+
 
 // Розширюємо тип сесії, щоб TypeScript бачив user.id
 declare module "next-auth" {
