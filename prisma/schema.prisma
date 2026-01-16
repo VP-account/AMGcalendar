@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // url більше не потрібен тут
+}
+
+model User {
+  id        String      @id @default(cuid())
+  email     String      @unique
+  name      String?
+  password  String
+  subscriptions Subscription[]
+  bookings  Booking[]
+}
+
+model Subscription {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  status     String
+  remaining  Int
+  startDate  DateTime?
+  endDate    DateTime?
+  duration   Int
+}
+
+model Class {
+  id             String   @id @default(cuid())
+  date           DateTime
+  startTime      String
+  endTime        String
+  type           String
+  subtype        String
+  maxCapacity    Int
+  currentBookings Int     @default(0)
+  instructor     String
+  location       String
+  address        String?
+  price          Float
+  bookings       Booking[]
+}
+
+model Booking {
+  id       String   @id @default(cuid())
+  userId   String
+  classId  String
+  status   String
+  user     User     @relation(fields: [userId], references: [id])
+  class    Class    @relation(fields: [classId], references: [id])
+}
