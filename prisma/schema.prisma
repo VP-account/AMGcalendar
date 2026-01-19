@@ -14,7 +14,7 @@ model User {
   subscriptions Subscription[]
   bookings  Booking[]
   
-  @@map("users")  // Додайте для кращої сумісності
+  @@map("users")
 }
 
 model Subscription {
