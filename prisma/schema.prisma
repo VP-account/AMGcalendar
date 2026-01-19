@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // url більше не потрібен тут
+  url      = env("DATABASE_URL")  // ← Додати цей рядок!
 }
 
 model User {
@@ -14,17 +14,21 @@ model User {
   password  String
   subscriptions Subscription[]
   bookings  Booking[]
+  
+  @@map("users")  // Додайте для кращої сумісності
 }
 
 model Subscription {
   id         String   @id @default(cuid())
   userId     String
-  user       User     @relation(fields: [userId], references: [id])
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   status     String
   remaining  Int
   startDate  DateTime?
   endDate    DateTime?
   duration   Int
+  
+  @@map("subscriptions")
 }
 
 model Class {
@@ -41,13 +45,17 @@ model Class {
   address        String?
   price          Float
   bookings       Booking[]
+  
+  @@map("classes")
 }
 
 model Booking {
   id       String   @id @default(cuid())
   userId   String
   classId  String
-  status   String
-  user     User     @relation(fields: [userId], references: [id])
-  class    Class    @relation(fields: [classId], references: [id])
+  status   String   @default("pending")
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  class    Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  
+  @@map("bookings")
 }
