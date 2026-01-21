@@ -15,7 +15,7 @@
   "clean-build": "rimraf .next && npm run build"
 },
   "dependencies": {
-    "@prisma/client": "^7.2.0",
+    "@prisma/client": "^5.0.0",
     "@supabase/supabase-js": "^2.0.0",
     "bcryptjs": "^3.0.3",
     "date-fns": "^4.1.0",
@@ -35,7 +35,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/bcryptjs": "^2.4.6",
-    "prisma": "^7.2.0",
+    "prisma": "^5.0.0",
     "typescript": "^5"
   },
   "engines": {
