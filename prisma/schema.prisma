@@ -4,11 +4,12 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")  // ← ОБОВ'ЯЗКОВО додати цей рядок!
 }
 
 model User {
-  id        String      @id @default(cuid())
-  email     String      @unique
+  id        String         @id @default(cuid())
+  email     String         @unique
   name      String?
   password  String
   subscriptions Subscription[]
@@ -21,24 +22,24 @@ model Subscription {
   id         String   @id @default(cuid())
   userId     String
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  status     String
-  remaining  Int
+  status     String   @default("active")
+  remaining  Int      @default(0)
   startDate  DateTime?
   endDate    DateTime?
-  duration   Int
+  duration   Int      @default(4)
   
   @@map("subscriptions")
 }
 
 model Class {
-  id             String   @id @default(cuid())
+  id             String    @id @default(cuid())
   date           DateTime
   startTime      String
   endTime        String
   type           String
   subtype        String
   maxCapacity    Int
-  currentBookings Int     @default(0)
+  currentBookings Int      @default(0)
   instructor     String
   location       String
   address        String?
@@ -53,6 +54,7 @@ model Booking {
   userId   String
   classId  String
   status   String   @default("pending")
+  createdAt DateTime @default(now())
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   class    Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
   
