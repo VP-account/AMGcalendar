@@ -1,17 +1,7 @@
 {
-  "buildCommand": "npm run vercel-build",
+  "buildCommand": "npm run build",  // або "npm run vercel-build"
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "outputDirectory": ".next",
-  "framework": "nextjs",
-  "regions": ["fra1"],
-  "functions": {
-    "app/api/**/*.ts": {
-      "maxDuration": 30,
-      "memory": 1024
-    }
-  },
-  "env": {
-    "PRISMA_GENERATE_IN_POSTINSTALL": "true"
-  }
+  "framework": "nextjs"
 }
