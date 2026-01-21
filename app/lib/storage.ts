@@ -136,20 +136,24 @@ class StorageService {
 
     // Користувачі
     saveUser(user: User): User {
-        // зберігаємо активного користувача
+        console.log('Saving user:', user);
+    
+        // 1. Зберігаємо активного користувача
         localStorage.setItem(this.KEYS.USER, JSON.stringify(user));
-
-        // додаємо/оновлюємо в списку всіх користувачів
+    
+        // 2. Додаємо/оновлюємо в списку всіх користувачів
         const users = this.getAllUsers();
-        const index = users.findIndex(u => u.id === user.id);
-
-        if (index === -1) {
-            users.push(user);
+        const existingIndex = users.findIndex(u => u.id === user.id);
+    
+        if (existingIndex >= 0) {
+            users[existingIndex] = user;
         } else {
-            users[index] = user;
+            users.push(user);
         }
-
+    
         localStorage.setItem(this.KEYS.USERS, JSON.stringify(users));
+        console.log('Users in storage after save:', users);
+    
         return user;
     }
     
@@ -163,6 +167,21 @@ class StorageService {
         return data ? JSON.parse(data) : null;
     }
 
+    getAllUsers(): User[] {
+        const data = localStorage.getItem(this.KEYS.USERS);
+        return data ? JSON.parse(data) : [];
+    }
+
+    getUserById(userId: string): User | null {
+        const users = this.getAllUsers();
+        return users.find(user => user.id === userId) || null;
+    }
+
+    getUserByEmail(email: string): User | null {
+        const users = this.getAllUsers();
+        return users.find(user => user.email === email) || null;
+    }
+    
     updateUser(updates: Partial<User>): User | null {
         const user = this.getUser();
         if (!user) return null;
@@ -171,12 +190,6 @@ class StorageService {
         localStorage.setItem(this.KEYS.USER, JSON.stringify(updatedUser));
         return updatedUser;
     }
-
-    getAllUsers(): User[] {
-        const data = localStorage.getItem(this.KEYS.USERS);
-        return data ? JSON.parse(data) : [];
-    }
-
     logout(): void {
         localStorage.removeItem(this.KEYS.USER);
     }
