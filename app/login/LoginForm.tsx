@@ -38,58 +38,66 @@ export default function LoginForm() {
     };
 
     const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        setError('');
+    e.preventDefault();
+    setError('');
     
-        console.log('=== FORM SUBMITTED ===');
-        console.log('Form data:', formData);
+    console.log('=== FORM SUBMITTED ===');
+    console.log('Form data:', formData);
 
-        if (!formData.email || !formData.password) {
-            setError('Заповніть обов\'язкові поля');
+    if (!formData.email || !formData.password) {
+        setError('Заповніть обов\'язкові поля');
+        return;
+    }
+
+    if (isRegistering) {
+        if (!formData.name || !formData.phone) {
+            setError('Для реєстрації потрібно ім\'я та телефон');
             return;
         }
-
-        if (isRegistering) {
-            if (!formData.name || !formData.phone) {
-                setError('Для реєстрації потрібно ім\'я та телефон');
-                return;
-            }
-            if (!formData.acceptTerms) {
-                setError('Потрібно прийняти умови конфіденційності');
-                return;
-            }
+        if (!formData.acceptTerms) {
+            setError('Потрібно прийняти умови конфіденційності');
+            return;
         }
+    }
 
-        const userData: User = {
-            id: Date.now().toString(),
-            email: formData.email,
-            phone: formData.phone,
-            name: formData.name,
-            interfaceLang: formData.language,
-            registrationDate: new Date().toISOString(),
-            status: 'active' as const,
-            remainingClasses: 0,
-            visits: [],
-            subscriptionExpiry: undefined,
-            matrixExpiry: undefined,
-            role: 'user',
-        };
+    const userData: User = {
+        id: Date.now().toString(),
+        email: formData.email,
+        phone: formData.phone,
+        name: formData.name,
+        interfaceLang: formData.language,
+        registrationDate: new Date().toISOString(),
+        status: 'active' as const,
+        remainingClasses: 0,
+        visits: [],
+        subscriptionExpiry: undefined,
+        matrixExpiry: undefined,
+        role: 'user',
+    };
 
-        console.log('User data to save:', userData);
+    console.log('User data to save:', userData);
     
     try {
-        storage.saveUser(userData);
-        console.log('User saved successfully');
+        // ТІЛЬКИ ОДИН РАЗ викликаємо saveUser!
+        const savedUser = storage.saveUser(userData);
+        console.log('User saved successfully:', savedUser);
         
-        // Додайте перевірку
+        // Перевіряємо, чи збережено
         const allUsers = storage.getAllUsers();
         console.log('All users in storage:', allUsers);
         
-        router.push(userData.role === 'admin' ? '/admin' : '/dashboard');
+        const currentUser = storage.getUser();
+        console.log('Current user:', currentUser);
+        
+        // Редиректимо
+        console.log('Redirecting to dashboard...');
+        router.push('/dashboard');
+        
     } catch (error) {
         console.error('Error saving user:', error);
         setError('Помилка збереження користувача');
     }
+};
         
         // ЗБЕРІГАЄМО КОРИСТУВАЧА
         storage.saveUser(userData);
