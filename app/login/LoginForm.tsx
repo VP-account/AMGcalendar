@@ -40,6 +40,9 @@ export default function LoginForm() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+    
+        console.log('=== FORM SUBMITTED ===');
+        console.log('Form data:', formData);
 
         if (!formData.email || !formData.password) {
             setError('Заповніть обов\'язкові поля');
@@ -72,6 +75,22 @@ export default function LoginForm() {
             role: 'user',
         };
 
+        console.log('User data to save:', userData);
+    
+    try {
+        storage.saveUser(userData);
+        console.log('User saved successfully');
+        
+        // Додайте перевірку
+        const allUsers = storage.getAllUsers();
+        console.log('All users in storage:', allUsers);
+        
+        router.push(userData.role === 'admin' ? '/admin' : '/dashboard');
+    } catch (error) {
+        console.error('Error saving user:', error);
+        setError('Помилка збереження користувача');
+    }
+        
         // ЗБЕРІГАЄМО КОРИСТУВАЧА
         storage.saveUser(userData);
         
