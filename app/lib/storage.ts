@@ -186,21 +186,38 @@ class StorageService {
         return data ? JSON.parse(data) : null;
     }
 
-    getAllUsers(): User[] {
-        const data = localStorage.getItem(this.KEYS.USERS);
-        return data ? JSON.parse(data) : [];
-    }
+    // Додайте ці методи в storage.ts:
 
-    getUserById(userId: string): User | null {
-        const users = this.getAllUsers();
-        return users.find(user => user.id === userId) || null;
+    getAllUsers(): User[] {
+        try {
+            const data = localStorage.getItem(this.KEYS.USERS);
+            console.log('Getting all users from:', this.KEYS.USERS);
+            console.log('Raw data:', data);
+        
+            if (!data) {
+                console.log('No users found, returning empty array');
+                return [];
+            }
+        
+            const users = JSON.parse(data);
+            console.log('Parsed users:', users);
+            return users;
+        } catch (error) {
+            console.error('Error getting all users:', error);
+            return [];
+        }
     }
 
     getUserByEmail(email: string): User | null {
         const users = this.getAllUsers();
         return users.find(user => user.email === email) || null;
     }
-    
+
+    getUserById(userId: string): User | null {
+        const users = this.getAllUsers();
+        return users.find(user => user.id === userId) || null;
+    }
+       
     updateUser(updates: Partial<User>): User | null {
         const user = this.getUser();
         if (!user) return null;
