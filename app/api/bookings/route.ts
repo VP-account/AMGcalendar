@@ -1,5 +1,5 @@
 export const runtime = 'nodejs';
-
+// trigger redeploy
 // app/api/bookings/route.ts
 import { NextRequest, NextResponse } from "next/server";
 // import { getServerSession } from "next-auth/next";
@@ -168,4 +168,5 @@ export async function DELETE(request: NextRequest) {
         );
     }
 }
+
 
