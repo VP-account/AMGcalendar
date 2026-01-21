@@ -135,26 +135,45 @@ class StorageService {
     }
 
     // Користувачі
+    // В storage.ts - замініть метод saveUser:
     saveUser(user: User): User {
+        console.log('=== SAVE USER CALLED ===');
         console.log('Saving user:', user);
     
-        // 1. Зберігаємо активного користувача
-        localStorage.setItem(this.KEYS.USER, JSON.stringify(user));
-    
-        // 2. Додаємо/оновлюємо в списку всіх користувачів
-        const users = this.getAllUsers();
-        const existingIndex = users.findIndex(u => u.id === user.id);
-    
-        if (existingIndex >= 0) {
-            users[existingIndex] = user;
-        } else {
-            users.push(user);
+        try {
+            // 1. Зберігаємо активного користувача
+            localStorage.setItem(this.KEYS.USER, JSON.stringify(user));
+            console.log('Active user saved to:', this.KEYS.USER);
+        
+            // 2. Додаємо/оновлюємо в списку всіх користувачів
+            const users = this.getAllUsers();
+            console.log('Existing users:', users);
+        
+            const existingIndex = users.findIndex(u => u.id === user.id);
+            
+            if (existingIndex >= 0) {
+                users[existingIndex] = user;
+                console.log('Updated existing user at index:', existingIndex);
+            } else {
+                users.push(user);
+                console.log('Added new user, total users:', users.length);
+            }
+        
+            localStorage.setItem(this.KEYS.USERS, JSON.stringify(users));
+            console.log('Users list saved to:', this.KEYS.USERS);
+        
+            // 3. Перевіряємо, що все збережено
+            const verifyUser = localStorage.getItem(this.KEYS.USER);
+            const verifyUsers = localStorage.getItem(this.KEYS.USERS);
+            console.log('Verification - active user exists:', !!verifyUser);
+            console.log('Verification - users list exists:', !!verifyUsers);
+            
+            return user;
+        
+        } catch (error) {
+            console.error('Error in saveUser:', error);
+            throw error;
         }
-    
-        localStorage.setItem(this.KEYS.USERS, JSON.stringify(users));
-        console.log('Users in storage after save:', users);
-    
-        return user;
     }
     
     saveAllUsers(users: any[]) {
