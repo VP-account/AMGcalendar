@@ -3,17 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "dev:vercel": "prisma generate && next dev",
-    "build": "prisma generate && next build", 
-    "vercel-build": "prisma generate && next build", 
-    "start": "next start",
-    "lint": "next lint",
-    "postinstall": "prisma generate",
-    "prisma:generate": "prisma generate",
-    "clean": "rm -rf .next node_modules/.cache",
-    "clean-build": "rm -rf .next && npm run build"
-  },
+  "dev": "next dev",
+  "dev:vercel": "prisma generate && next dev",
+  "build": "prisma generate && next build", 
+  "vercel-build": "prisma generate && next build", 
+  "start": "next start",
+  "lint": "next lint",
+  "postinstall": "prisma generate",
+  "prisma:generate": "prisma generate",
+  "clean": "rimraf .next node_modules/.cache",
+  "clean-build": "rimraf .next && npm run build"
+},
   "dependencies": {
     "@prisma/client": "^7.2.0",
     "@supabase/supabase-js": "^2.0.0",
