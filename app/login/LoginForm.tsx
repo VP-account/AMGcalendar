@@ -7,7 +7,6 @@ import Link from 'next/link';
 import { storage } from '@/app/lib/storage';
 import type { User } from '@/app/lib/storage';
 
-// Виносимо всю логіку з `useSearchParams()` в цей компонент
 export default function LoginForm() {
     const [isRegistering, setIsRegistering] = useState(false);
     const [formData, setFormData] = useState({
@@ -20,7 +19,7 @@ export default function LoginForm() {
     });
     const [error, setError] = useState('');
     const router = useRouter();
-    const searchParams = useSearchParams(); // Хук тепер в дочірньому компоненті
+    const searchParams = useSearchParams();
 
     useEffect(() => {
         const registerParam = searchParams.get('register');
@@ -73,15 +72,168 @@ export default function LoginForm() {
             role: 'user',
         };
 
-        const savedUser = storage.saveUser(userData);
-        router.push(savedUser.role === 'admin' ? '/admin' : '/dashboard');
+        // ЗБЕРІГАЄМО КОРИСТУВАЧА
+        storage.saveUser(userData);
+        
+        // АЛЕ storage.saveUser не повертає об'єкт!
+        // Використовуємо наш userData для перенаправлення
+        router.push(userData.role === 'admin' ? '/admin' : '/dashboard');
     };
 
-    // Копіюємо JSX твоєї форми з файлу page.tsx (весь код після return)
+    // ВАЖЛИВО: Додайте весь JSX код форми!
     return (
         <div style={styles.container}>
-            {/* ... увесь JSX з твого поточного коду ... */}
-            {/* Скопіюй всі стилі styles знизу сюди */}
+            <div style={styles.card}>
+                <div style={styles.header}>
+                    <h1 style={styles.title}>
+                        {isRegistering ? 'Створення аккаунта' : 'Вхід'}
+                    </h1>
+                    <p style={styles.subtitle}>
+                        {isRegistering 
+                            ? 'Заповніть форму для реєстрації' 
+                            : 'Увійдіть у свій акаунт'}
+                    </p>
+                </div>
+
+                {error && (
+                    <div style={styles.error}>{error}</div>
+                )}
+
+                <form onSubmit={handleSubmit} style={styles.form}>
+                    <div style={styles.inputGroup}>
+                        <label htmlFor="email" style={styles.label}>
+                            Email *
+                        </label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            style={styles.input}
+                            placeholder="ваш@email.com"
+                            required
+                        />
+                    </div>
+
+                    <div style={styles.inputGroup}>
+                        <label htmlFor="password" style={styles.label}>
+                            Пароль *
+                        </label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            style={styles.input}
+                            placeholder="••••••••"
+                            required
+                        />
+                    </div>
+
+                    {isRegistering && (
+                        <>
+                            <div style={styles.inputGroup}>
+                                <label htmlFor="name" style={styles.label}>
+                                    Ім'я *
+                                </label>
+                                <input
+                                    type="text"
+                                    id="name"
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                    style={styles.input}
+                                    placeholder="Ваше ім'я"
+                                    required={isRegistering}
+                                />
+                            </div>
+
+                            <div style={styles.inputGroup}>
+                                <label htmlFor="phone" style={styles.label}>
+                                    Телефон *
+                                </label>
+                                <input
+                                    type="tel"
+                                    id="phone"
+                                    name="phone"
+                                    value={formData.phone}
+                                    onChange={handleChange}
+                                    style={styles.input}
+                                    placeholder="+380 XX XXX XX XX"
+                                    required={isRegistering}
+                                />
+                            </div>
+
+                            <div style={styles.inputGroup}>
+                                <label htmlFor="language" style={styles.label}>
+                                    Мова інтерфейсу
+                                </label>
+                                <select
+                                    id="language"
+                                    name="language"
+                                    value={formData.language}
+                                    onChange={handleChange}
+                                    style={styles.input}
+                                >
+                                    <option value="uk">Українська</option>
+                                    <option value="en">English</option>
+                                    <option value="pl">Polski</option>
+                                </select>
+                            </div>
+
+                            <div style={styles.checkboxGroup}>
+                                <input
+                                    type="checkbox"
+                                    id="acceptTerms"
+                                    name="acceptTerms"
+                                    checked={formData.acceptTerms}
+                                    onChange={handleChange}
+                                    style={styles.checkbox}
+                                    required={isRegistering}
+                                />
+                                <label htmlFor="acceptTerms" style={styles.checkboxLabel}>
+                                    Я приймаю умови конфіденційності та обробки персональних даних
+                                </label>
+                            </div>
+                        </>
+                    )}
+
+                    <button type="submit" style={styles.button}>
+                        {isRegistering ? 'Зареєструватися' : 'Увійти'}
+                    </button>
+                </form>
+
+                <div style={styles.footer}>
+                    {isRegistering ? (
+                        <p style={styles.footerText}>
+                            Вже маєте акаунт?{' '}
+                            <button
+                                type="button"
+                                onClick={() => setIsRegistering(false)}
+                                style={styles.linkButton}
+                            >
+                                Увійти
+                            </button>
+                        </p>
+                    ) : (
+                        <p style={styles.footerText}>
+                            Немає акаунта?{' '}
+                            <button
+                                type="button"
+                                onClick={() => setIsRegistering(true)}
+                                style={styles.linkButton}
+                            >
+                                Зареєструватися
+                            </button>
+                        </p>
+                    )}
+                    <Link href="/" style={styles.homeLink}>
+                        ← На головну
+                    </Link>
+                </div>
+            </div>
         </div>
     );
 }
@@ -89,7 +241,131 @@ export default function LoginForm() {
 const styles = {
     container: {
         minHeight: '100vh',
-        background: 'linear-gradient(to bottom, var(--color-background), white)'
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(to bottom, #f8fafc, #e2e8f0)',
+        padding: '20px',
     },
-    // ... КОПІЮЙ СЮДИ ВСІ ІНШІ СТИЛІ З ПОПЕРЕДНЬОГО ФАЙЛУ ...
+    card: {
+        background: 'white',
+        borderRadius: '12px',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        padding: '2rem',
+        width: '100%',
+        maxWidth: '400px',
+    },
+    header: {
+        textAlign: 'center' as const,
+        marginBottom: '1.5rem',
+    },
+    title: {
+        fontSize: '1.5rem',
+        fontWeight: 'bold',
+        color: '#1a202c',
+        marginBottom: '0.5rem',
+    },
+    subtitle: {
+        color: '#718096',
+        fontSize: '0.875rem',
+    },
+    error: {
+        backgroundColor: '#fed7d7',
+        color: '#c53030',
+        padding: '0.75rem',
+        borderRadius: '6px',
+        marginBottom: '1rem',
+        fontSize: '0.875rem',
+    },
+    form: {
+        display: 'flex',
+        flexDirection: 'column' as const,
+        gap: '1rem',
+    },
+    inputGroup: {
+        display: 'flex',
+        flexDirection: 'column' as const,
+        gap: '0.5rem',
+    },
+    label: {
+        fontSize: '0.875rem',
+        fontWeight: '500',
+        color: '#4a5568',
+    },
+    input: {
+        padding: '0.5rem 0.75rem',
+        border: '1px solid #e2e8f0',
+        borderRadius: '6px',
+        fontSize: '0.875rem',
+        transition: 'all 0.2s',
+        ':focus': {
+            outline: 'none',
+            borderColor: '#4299e1',
+            boxShadow: '0 0 0 3px rgba(66, 153, 225, 0.15)',
+        },
+    },
+    checkboxGroup: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5rem',
+    },
+    checkbox: {
+        width: '1rem',
+        height: '1rem',
+    },
+    checkboxLabel: {
+        fontSize: '0.75rem',
+        color: '#4a5568',
+    },
+    button: {
+        backgroundColor: '#4299e1',
+        color: 'white',
+        padding: '0.75rem',
+        borderRadius: '6px',
+        border: 'none',
+        fontSize: '0.875rem',
+        fontWeight: '500',
+        cursor: 'pointer',
+        transition: 'background-color 0.2s',
+        marginTop: '0.5rem',
+        ':hover': {
+            backgroundColor: '#3182ce',
+        },
+        ':focus': {
+            outline: 'none',
+            boxShadow: '0 0 0 3px rgba(66, 153, 225, 0.5)',
+        },
+    },
+    footer: {
+        marginTop: '1.5rem',
+        textAlign: 'center' as const,
+    },
+    footerText: {
+        color: '#718096',
+        fontSize: '0.875rem',
+        marginBottom: '0.5rem',
+    },
+    linkButton: {
+        color: '#4299e1',
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        fontSize: '0.875rem',
+        fontWeight: '500',
+        padding: '0',
+        textDecoration: 'underline',
+        ':hover': {
+            color: '#3182ce',
+        },
+    },
+    homeLink: {
+        display: 'inline-block',
+        color: '#718096',
+        fontSize: '0.75rem',
+        textDecoration: 'none',
+        marginTop: '0.5rem',
+        ':hover': {
+            color: '#4a5568',
+        },
+    },
 } as const;
