@@ -37,44 +37,100 @@ export default function LoginForm() {
     };
 
     const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        setError('');
-        
-        console.log('=== FORM SUBMITTED ===');
-        console.log('Form data:', formData);
+    e.preventDefault();
+    console.log('=== FORM SUBMISSION START ===');
+    setError('');
 
-        if (!formData.email || !formData.password) {
-            setError('Заповніть обов\'язкові поля');
+    // Валідація
+    if (!formData.email || !formData.password) {
+        setError('Заповніть обов\'язкові поля');
+        return;
+    }
+
+    if (isRegistering) {
+        if (!formData.name || !formData.phone) {
+            setError('Для реєстрації потрібно ім\'я та телефон');
             return;
         }
-
-        if (isRegistering) {
-            if (!formData.name || !formData.phone) {
-                setError('Для реєстрації потрібно ім\'я та телефон');
-                return;
-            }
-            if (!formData.acceptTerms) {
-                setError('Потрібно прийняти умови конфіденційності');
-                return;
-            }
+        if (!formData.acceptTerms) {
+            setError('Потрібно прийняти умови конфіденційності');
+            return;
         }
+    }
 
-        const userData: User = {
-            id: Date.now().toString(),
-            email: formData.email,
-            phone: formData.phone,
-            name: formData.name,
-            interfaceLang: formData.language,
-            registrationDate: new Date().toISOString(),
-            status: 'active' as const,
-            remainingClasses: 0,
-            visits: [],
-            subscriptionExpiry: undefined,
-            matrixExpiry: undefined,
-            role: 'user',
-        };
+    // Формуємо об'єкт користувача з ВСІМА полями
+    const userData: User = {
+        id: `user_${Date.now()}`,
+        email: formData.email,
+        phone: formData.phone,
+        name: formData.name,
+        interfaceLang: formData.language,
+        registrationDate: new Date().toISOString(),
+        status: 'active',
+        remainingClasses: 0,
+        visits: [],
+        subscriptionExpiry: null,  // Явно вказуємо null
+        matrixExpiry: null,        // Явно вказуємо null
+        role: 'user',
+        // Додайте інші обов'язкові поля з інтерфейсу
+        goal: undefined,
+        experience: undefined,
+        comments: undefined,
+        preferredLang: undefined,
+        photo: undefined,
+        surname: undefined,
+        birthDate: undefined,
+        gender: undefined,
+    };
 
-        console.log('User data to save:', userData);
+    console.log('User data prepared:', userData);
+
+    try {
+        console.log('Attempting to save user...');
+        
+        // Викликаємо saveUser
+        const savedUser = storage.saveUser(userData);
+        console.log('User saved, response:', savedUser);
+        
+        // Перевіряємо localStorage
+        console.log('Checking localStorage...');
+        const activeUser = localStorage.getItem('pilates_user');
+        console.log('Active user in localStorage:', activeUser);
+        
+        const allUsers = localStorage.getItem('pilates_users');
+        console.log('All users in localStorage:', allUsers);
+        
+        // Перевіряємо через storage методи
+        const currentUser = storage.getUser();
+        console.log('Current user from storage:', currentUser);
+        
+        const usersList = storage.getAllUsers();
+        console.log('All users from storage:', usersList);
+        
+        if (!currentUser) {
+            console.error('No user found after save!');
+            setError('Помилка: користувач не збережений');
+            return;
+        }
+        
+        console.log('Redirecting to dashboard...');
+        
+        // Два способи редиректу
+        router.push('/dashboard');
+        
+        // Fallback через 300ms
+        setTimeout(() => {
+            console.log('Fallback redirect');
+            window.location.href = '/dashboard';
+        }, 300);
+        
+    } catch (error) {
+        console.error('Error in handleSubmit:', error);
+        setError(`Помилка: ${error instanceof Error ? error.message : 'Невідома помилка'}`);
+    }
+    
+    console.log('=== FORM SUBMISSION END ===');
+};
         
         try {
             const savedUser = storage.saveUser(userData);
