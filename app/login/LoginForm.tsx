@@ -1,4 +1,3 @@
-// app/login/LoginForm.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -38,76 +37,64 @@ export default function LoginForm() {
     };
 
     const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    
-    console.log('=== FORM SUBMITTED ===');
-    console.log('Form data:', formData);
+        e.preventDefault();
+        setError('');
+        
+        console.log('=== FORM SUBMITTED ===');
+        console.log('Form data:', formData);
 
-    if (!formData.email || !formData.password) {
-        setError('Заповніть обов\'язкові поля');
-        return;
-    }
-
-    if (isRegistering) {
-        if (!formData.name || !formData.phone) {
-            setError('Для реєстрації потрібно ім\'я та телефон');
+        if (!formData.email || !formData.password) {
+            setError('Заповніть обов\'язкові поля');
             return;
         }
-        if (!formData.acceptTerms) {
-            setError('Потрібно прийняти умови конфіденційності');
-            return;
+
+        if (isRegistering) {
+            if (!formData.name || !formData.phone) {
+                setError('Для реєстрації потрібно ім\'я та телефон');
+                return;
+            }
+            if (!formData.acceptTerms) {
+                setError('Потрібно прийняти умови конфіденційності');
+                return;
+            }
         }
-    }
 
-    const userData: User = {
-        id: Date.now().toString(),
-        email: formData.email,
-        phone: formData.phone,
-        name: formData.name,
-        interfaceLang: formData.language,
-        registrationDate: new Date().toISOString(),
-        status: 'active' as const,
-        remainingClasses: 0,
-        visits: [],
-        subscriptionExpiry: undefined,
-        matrixExpiry: undefined,
-        role: 'user',
+        const userData: User = {
+            id: Date.now().toString(),
+            email: formData.email,
+            phone: formData.phone,
+            name: formData.name,
+            interfaceLang: formData.language,
+            registrationDate: new Date().toISOString(),
+            status: 'active' as const,
+            remainingClasses: 0,
+            visits: [],
+            subscriptionExpiry: undefined,
+            matrixExpiry: undefined,
+            role: 'user',
+        };
+
+        console.log('User data to save:', userData);
+        
+        try {
+            const savedUser = storage.saveUser(userData);
+            console.log('User saved successfully:', savedUser);
+            
+            const allUsers = storage.getAllUsers();
+            console.log('All users in storage:', allUsers);
+            
+            const currentUser = storage.getUser();
+            console.log('Current user:', currentUser);
+            
+            console.log('Redirecting to dashboard...');
+            router.push('/dashboard');
+            
+        } catch (error) {
+            console.error('Error saving user:', error);
+            setError('Помилка збереження користувача');
+        }
     };
 
-    console.log('User data to save:', userData);
-    
-    try {
-        // ТІЛЬКИ ОДИН РАЗ викликаємо saveUser!
-        const savedUser = storage.saveUser(userData);
-        console.log('User saved successfully:', savedUser);
-        
-        // Перевіряємо, чи збережено
-        const allUsers = storage.getAllUsers();
-        console.log('All users in storage:', allUsers);
-        
-        const currentUser = storage.getUser();
-        console.log('Current user:', currentUser);
-        
-        // Редиректимо
-        console.log('Redirecting to dashboard...');
-        router.push('/dashboard');
-        
-    } catch (error) {
-        console.error('Error saving user:', error);
-        setError('Помилка збереження користувача');
-    }
-};
-        
-        // ЗБЕРІГАЄМО КОРИСТУВАЧА
-        storage.saveUser(userData);
-        
-        // АЛЕ storage.saveUser не повертає об'єкт!
-        // Використовуємо наш userData для перенаправлення
-        router.push(userData.role === 'admin' ? '/admin' : '/dashboard');
-    };
-
-    // ВАЖЛИВО: Додайте весь JSX код форми!
     return (
         <div style={styles.container}>
             <div style={styles.card}>
@@ -325,11 +312,6 @@ const styles = {
         borderRadius: '6px',
         fontSize: '0.875rem',
         transition: 'all 0.2s',
-        ':focus': {
-            outline: 'none',
-            borderColor: '#4299e1',
-            boxShadow: '0 0 0 3px rgba(66, 153, 225, 0.15)',
-        },
     },
     checkboxGroup: {
         display: 'flex',
@@ -355,13 +337,6 @@ const styles = {
         cursor: 'pointer',
         transition: 'background-color 0.2s',
         marginTop: '0.5rem',
-        ':hover': {
-            backgroundColor: '#3182ce',
-        },
-        ':focus': {
-            outline: 'none',
-            boxShadow: '0 0 0 3px rgba(66, 153, 225, 0.5)',
-        },
     },
     footer: {
         marginTop: '1.5rem',
@@ -381,9 +356,6 @@ const styles = {
         fontWeight: '500',
         padding: '0',
         textDecoration: 'underline',
-        ':hover': {
-            color: '#3182ce',
-        },
     },
     homeLink: {
         display: 'inline-block',
@@ -391,8 +363,5 @@ const styles = {
         fontSize: '0.75rem',
         textDecoration: 'none',
         marginTop: '0.5rem',
-        ':hover': {
-            color: '#4a5568',
-        },
     },
 } as const;
