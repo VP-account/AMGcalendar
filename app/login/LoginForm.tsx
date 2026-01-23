@@ -37,10 +37,10 @@ export default function LoginForm() {
         }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (isSubmitting) return; // Запобігаємо повторним відправкам
+    if (isSubmitting) return; // ← Запобігаємо повторним клікам
     
     setIsSubmitting(true);
     console.log('=== FORM SUBMISSION START ===');
@@ -49,16 +49,19 @@ export default function LoginForm() {
     // Валідація
     if (!formData.email || !formData.password) {
         setError('Заповніть обов\'язкові поля');
+        setIsSubmitting(false); // ← Відновлюємо кнопку
         return;
     }
 
     if (isRegistering) {
         if (!formData.name || !formData.phone) {
             setError('Для реєстрації потрібно ім\'я та телефон');
+            setIsSubmitting(false); // ← Відновлюємо кнопку
             return;
         }
         if (!formData.acceptTerms) {
             setError('Потрібно прийняти умови конфіденційності');
+            setIsSubmitting(false); // ← Відновлюємо кнопку
             return;
         }
     }
@@ -137,8 +140,10 @@ export default function LoginForm() {
     } catch (error) {
         console.error('Error in handleSubmit:', error);
         setError(`Помилка: ${error instanceof Error ? error.message : 'Невідома помилка'}`);
-        setIsSubmitting(false); // Відновлюємо кнопку при помилці
+        setIsSubmitting(false); // ← Відновлюємо кнопку при помилці
     }
+    
+    console.log('=== FORM SUBMISSION END ===');
 };
         
         try {
