@@ -58,29 +58,21 @@ export default function LoginForm() {
         }
     }
 
-    // Формуємо об'єкт користувача з ВСІМА полями
+    // Формуємо об'єкт користувача
     const userData: User = {
         id: `user_${Date.now()}`,
         email: formData.email,
-        phone: formData.phone,
-        name: formData.name,
+        phone: formData.phone || '',
+        name: formData.name || '',
         interfaceLang: formData.language,
         registrationDate: new Date().toISOString(),
         status: 'active',
         remainingClasses: 0,
         visits: [],
-        subscriptionExpiry: null,  // Явно вказуємо null
-        matrixExpiry: null,        // Явно вказуємо null
+        subscriptionExpiry: undefined,  // Використовуємо undefined замість null
+        matrixExpiry: undefined,        // Використовуємо undefined замість null
         role: 'user',
-        // Додайте інші обов'язкові поля з інтерфейсу
-        goal: undefined,
-        experience: undefined,
-        comments: undefined,
-        preferredLang: undefined,
-        photo: undefined,
-        surname: undefined,
-        birthDate: undefined,
-        gender: undefined,
+        // Необов'язкові поля - можна не додавати, вони в інтерфейсі позначені як optional (?)
     };
 
     console.log('User data prepared:', userData);
@@ -88,17 +80,33 @@ export default function LoginForm() {
     try {
         console.log('Attempting to save user...');
         
+        // Перевіряємо, чи користувач вже існує
+        const existingUser = storage.getUserByEmail(formData.email);
+        
+        if (existingUser && isRegistering) {
+            setError('Користувач з таким email вже зареєстрований');
+            return;
+        }
+        
+        if (!existingUser && !isRegistering) {
+            setError('Користувача не знайдено. Зареєструйтесь спочатку.');
+            return;
+        }
+
+        // Якщо це вхід (не реєстрація), використовуємо існуючого користувача
+        const userToSave = isRegistering ? userData : existingUser!;
+        
         // Викликаємо saveUser
-        const savedUser = storage.saveUser(userData);
+        const savedUser = storage.saveUser(userToSave);
         console.log('User saved, response:', savedUser);
         
         // Перевіряємо localStorage
         console.log('Checking localStorage...');
-        const activeUser = localStorage.getItem('pilates_user');
-        console.log('Active user in localStorage:', activeUser);
+        const activeUserJson = localStorage.getItem('pilates_user');
+        console.log('Active user in localStorage:', activeUserJson);
         
-        const allUsers = localStorage.getItem('pilates_users');
-        console.log('All users in localStorage:', allUsers);
+        const allUsersJson = localStorage.getItem('pilates_users');
+        console.log('All users in localStorage:', allUsersJson);
         
         // Перевіряємо через storage методи
         const currentUser = storage.getUser();
@@ -115,14 +123,11 @@ export default function LoginForm() {
         
         console.log('Redirecting to dashboard...');
         
-        // Два способи редиректу
-        router.push('/dashboard');
+        // Використовуємо window.location для надійності
+        window.location.href = '/dashboard';
         
-        // Fallback через 300ms
-        setTimeout(() => {
-            console.log('Fallback redirect');
-            window.location.href = '/dashboard';
-        }, 300);
+        // Альтернатива через router (коментуємо, бо вже використовуємо window.location)
+        // router.push('/dashboard');
         
     } catch (error) {
         console.error('Error in handleSubmit:', error);
