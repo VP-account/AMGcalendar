@@ -248,10 +248,6 @@ export default function LoginForm() {
   );
 }
 
-// Твої стилі залишаються без змін
-const styles = { ... } as const;
-
-
 const styles = {
     container: {
         minHeight: '100vh',
