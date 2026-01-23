@@ -17,6 +17,7 @@ export default function LoginForm() {
         acceptTerms: false,
     });
     const [error, setError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -278,8 +279,16 @@ export default function LoginForm() {
                         </>
                     )}
 
-                    <button type="submit" style={styles.button}>
-                        {isRegistering ? 'Зареєструватися' : 'Увійти'}
+                    <button 
+                        type="submit" 
+                        style={{
+                            ...styles.button,
+                             opacity: isSubmitting ? 0.7 : 1,
+                            cursor: isSubmitting ? 'not-allowed' : 'pointer'
+                        }}
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting ? 'Обробка...' : (isRegistering ? 'Зареєструватися' : 'Увійти')}
                     </button>
                 </form>
 
