@@ -38,6 +38,10 @@ export default function LoginForm() {
 
     const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (isSubmitting) return; // Запобігаємо повторним відправкам
+    
+    setIsSubmitting(true);
     console.log('=== FORM SUBMISSION START ===');
     setError('');
 
@@ -132,9 +136,8 @@ export default function LoginForm() {
     } catch (error) {
         console.error('Error in handleSubmit:', error);
         setError(`Помилка: ${error instanceof Error ? error.message : 'Невідома помилка'}`);
+        setIsSubmitting(false); // Відновлюємо кнопку при помилці
     }
-    
-    console.log('=== FORM SUBMISSION END ===');
 };
         
         try {
