@@ -44,7 +44,7 @@ export default function LoginForm() {
         }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (isSubmitting) return;
@@ -87,10 +87,11 @@ export default function LoginForm() {
                 return;
             }
             
-            // Створюємо нового користувача
+            // Створюємо нового користувача з паролем
             const userData: User = {
                 id: `user_${Date.now()}`,
                 email: formData.email,
+                password: formData.password, // Зберігаємо пароль
                 phone: formData.phone || '',
                 name: formData.name || '',
                 interfaceLang: formData.language,
@@ -115,8 +116,12 @@ export default function LoginForm() {
                 return;
             }
             
-            // ТУТ ПОВИННА БУТИ ПЕРЕВІРКА ПАРОЛЯ!
-            // Поки що просто пропускаємо
+            // Перевірка пароля
+            if (!existingUser.password || existingUser.password !== formData.password) {
+                setError('Невірний пароль');
+                setIsSubmitting(false);
+                return;
+            }
             
             console.log('Logging in existing user:', existingUser);
             storage.saveUser(existingUser); // Зберігаємо як активного користувача
