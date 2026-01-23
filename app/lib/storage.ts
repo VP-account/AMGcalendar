@@ -1,8 +1,8 @@
 // app/lib/storage.ts
-
 export interface User {
     id: string;
     email: string;
+    password?: string; // ← ДОДАЙТЕ ПАРОЛЬ!
     phone?: string;
     name?: string;
     surname?: string;
