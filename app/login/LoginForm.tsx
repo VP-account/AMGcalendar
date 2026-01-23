@@ -108,7 +108,7 @@ export default function LoginForm() {
         const userToSave = isRegistering ? userData : existingUser!;
         
         // Викликаємо saveUser
-        const savedUser = storage.saveUser(userToSave);
+        const savedUser = storage?.saveUser(userToSave);
         console.log('User saved, response:', savedUser);
         
         // Перевіряємо localStorage
@@ -150,7 +150,7 @@ export default function LoginForm() {
 };
         
         try {
-            const savedUser = storage.saveUser(userData);
+            const savedUser = storage?.saveUser(userData);
             console.log('User saved successfully:', savedUser);
             
             const allUsers = storage.getAllUsers();
