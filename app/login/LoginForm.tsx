@@ -148,7 +148,7 @@ export default function LoginForm() {
         } catch (error) {
             console.error('Error saving user:', error);
             setError('Помилка збереження користувача');
-        }
+        
     };
 
     return (
