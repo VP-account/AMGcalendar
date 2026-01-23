@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-// import { storage } from '@/app/lib/storage';
+import { useStorage } from '@/app/lib/useStorage';
 import type { User } from '@/app/lib/storage';
+import { storage } from '@/app/lib/storage';
 
 export default function LoginForm() {
     const [isRegistering, setIsRegistering] = useState(false);
@@ -21,6 +22,8 @@ export default function LoginForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
+    const storage = useStorage();
+    
     useEffect(() => {
         const registerParam = searchParams.get('register');
         if (registerParam === 'true') {
