@@ -2,7 +2,7 @@
 export interface User {
     id: string;
     email: string;
-    password?: string; // ← ДОДАЙТЕ ПАРОЛЬ!
+    password: string; // ← ДОДАЙТЕ ПАРОЛЬ!
     phone?: string;
     name?: string;
     surname?: string;
@@ -138,6 +138,11 @@ class StorageService {
     // В storage.ts - замініть метод saveUser:
     saveUser(user: User): User {
         console.log('=== SAVE USER CALLED ===');
+    
+        // Переконуємось, що є пароль
+        if (!user.password) {
+            throw new Error('Password is required');
+    }
         console.log('Saving user:', user);
     
         try {
