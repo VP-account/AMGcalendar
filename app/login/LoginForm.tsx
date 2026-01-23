@@ -23,17 +23,65 @@ export default function LoginForm() {
 
     // 1. Спочатку встановлюємо isMounted
     useEffect(() => {
-        setIsMounted(true);
+    setIsMounted(true);
+    
+    // Перевіряємо URL параметри
+    if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        const registerParam = params.get('register');
+        if (registerParam === 'true') {
+            setIsRegistering(true);
+        }
         
-        // Перевіряємо URL параметри клієнтським способом
-        if (typeof window !== 'undefined') {
-            const params = new URLSearchParams(window.location.search);
-            const registerParam = params.get('register');
-            if (registerParam === 'true') {
-                setIsRegistering(true);
+        // ⚠️ ДЛЯ ТЕСТУ: Очищаємо дубльованих користувачів
+        cleanupDuplicateUsers();
+    }
+}, []);
+
+// Функція для очищення дублікатів
+const cleanupDuplicateUsers = () => {
+    try {
+        const users = storage.getAllUsers();
+        console.log('Before cleanup:', users.length, 'users');
+        
+        // Фільтруємо дублікати (залишаємо останнього)
+        const uniqueUsers = [];
+        const seenEmails = new Set();
+        
+        for (let i = users.length - 1; i >= 0; i--) {
+            const user = users[i];
+            if (!seenEmails.has(user.email)) {
+                seenEmails.add(user.email);
+                uniqueUsers.unshift(user); // Додаємо в початок
             }
         }
-    }, []);
+        
+        if (uniqueUsers.length < users.length) {
+            console.log('Cleaned up duplicates:', users.length - uniqueUsers.length);
+            
+            // Оновлюємо localStorage
+            const usersWithPassword = uniqueUsers.map(user => ({
+                ...user,
+                // Додаємо дефолтний пароль для користувачів без пароля
+                password: user.password || 'default123'
+            }));
+            
+            localStorage.setItem('pilates_users', JSON.stringify(usersWithPassword));
+            
+            // Оновлюємо активного користувача
+            const currentUser = storage.getUser();
+            if (currentUser) {
+                const updatedCurrent = usersWithPassword.find(u => u.id === currentUser.id);
+                if (updatedCurrent) {
+                    localStorage.setItem('pilates_user', JSON.stringify(updatedCurrent));
+                }
+            }
+        }
+        
+    } catch (error) {
+        console.error('Error cleaning up users:', error);
+    }
+};
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
