@@ -45,98 +45,104 @@ export default function LoginForm() {
     };
 
     const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        
-        if (isSubmitting) return;
-        
-        setIsSubmitting(true);
-        console.log('=== FORM SUBMISSION START ===');
-        setError('');
+    e.preventDefault();
+    
+    if (isSubmitting) return;
+    
+    setIsSubmitting(true);
+    console.log('=== FORM SUBMISSION START ===');
+    setError('');
 
-        // Валідація
-        if (!formData.email || !formData.password) {
-            setError('Заповніть обов\'язкові поля');
+    // Валідація
+    if (!formData.email || !formData.password) {
+        setError('Заповніть обов\'язкові поля');
+        setIsSubmitting(false);
+        return;
+    }
+
+    if (isRegistering) {
+        if (!formData.name || !formData.phone) {
+            setError('Для реєстрації потрібно ім\'я та телефон');
             setIsSubmitting(false);
             return;
         }
-
-        if (isRegistering) {
-            if (!formData.name || !formData.phone) {
-                setError('Для реєстрації потрібно ім\'я та телефон');
-                setIsSubmitting(false);
-                return;
-            }
-            if (!formData.acceptTerms) {
-                setError('Потрібно прийняти умови конфіденційності');
-                setIsSubmitting(false);
-                return;
-            }
+        if (!formData.acceptTerms) {
+            setError('Потрібно прийняти умови конфіденційності');
+            setIsSubmitting(false);
+            return;
         }
+    }
 
-        // Формуємо об'єкт користувача
-        const userData: User = {
-            id: `user_${Date.now()}`,
-            email: formData.email,
-            phone: formData.phone || '',
-            name: formData.name || '',
-            interfaceLang: formData.language,
-            registrationDate: new Date().toISOString(),
-            status: 'active',
-            remainingClasses: 0,
-            visits: [],
-            subscriptionExpiry: undefined,
-            matrixExpiry: undefined,
-            role: 'user',
-        };
-
-        console.log('User data prepared:', userData);
-
-        try {
-            console.log('Attempting to save user...');
-            
-            // Перевіряємо, чи користувач вже існує
-            const existingUser = storage.getUserByEmail(formData.email);
-            
-            if (existingUser && isRegistering) {
+    try {
+        console.log('Attempting to process form...');
+        
+        // Перевіряємо, чи користувач вже існує
+        const existingUser = storage.getUserByEmail(formData.email);
+        
+        // РЕЄСТРАЦІЯ
+        if (isRegistering) {
+            if (existingUser) {
                 setError('Користувач з таким email вже зареєстрований');
                 setIsSubmitting(false);
                 return;
             }
             
-            if (!existingUser && !isRegistering) {
+            // Створюємо нового користувача
+            const userData: User = {
+                id: `user_${Date.now()}`,
+                email: formData.email,
+                phone: formData.phone || '',
+                name: formData.name || '',
+                interfaceLang: formData.language,
+                registrationDate: new Date().toISOString(),
+                status: 'active',
+                remainingClasses: 0,
+                visits: [],
+                subscriptionExpiry: undefined,
+                matrixExpiry: undefined,
+                role: 'user',
+            };
+            
+            console.log('Registering new user:', userData);
+            storage.saveUser(userData);
+            
+        } 
+        // ВХІД
+        else {
+            if (!existingUser) {
                 setError('Користувача не знайдено. Зареєструйтесь спочатку.');
                 setIsSubmitting(false);
                 return;
             }
-
-            // Якщо це вхід (не реєстрація), використовуємо існуючого користувача
-            const userToSave = isRegistering ? userData : existingUser!;
             
-            // Викликаємо saveUser
-            const savedUser = storage.saveUser(userToSave);
-            console.log('User saved, response:', savedUser);
+            // ТУТ ПОВИННА БУТИ ПЕРЕВІРКА ПАРОЛЯ!
+            // Поки що просто пропускаємо
             
-            // Перевіряємо
-            const currentUser = storage.getUser();
-            console.log('Current user from storage:', currentUser);
-            
-            if (!currentUser) {
-                throw new Error('Не вдалося зберегти користувача');
-            }
-            
-            console.log('Redirecting to dashboard...');
-            
-            // Використовуємо window.location для надійності
-            window.location.href = '/dashboard';
-            
-        } catch (error) {
-            console.error('Error in handleSubmit:', error);
-            setError(`Помилка: ${error instanceof Error ? error.message : 'Невідома помилка'}`);
-            setIsSubmitting(false);
+            console.log('Logging in existing user:', existingUser);
+            storage.saveUser(existingUser); // Зберігаємо як активного користувача
         }
         
-        console.log('=== FORM SUBMISSION END ===');
-    };
+        // Перевіряємо, чи збережено
+        const currentUser = storage.getUser();
+        console.log('Current user from storage:', currentUser);
+        
+        if (!currentUser) {
+            throw new Error('Не вдалося зберегти користувача');
+        }
+        
+        console.log('Redirecting to dashboard...');
+        
+        // Використовуємо window.location для надійності
+        window.location.href = '/dashboard';
+        
+    } catch (error) {
+        console.error('Error in handleSubmit:', error);
+        setError(`Помилка: ${error instanceof Error ? error.message : 'Невідома помилка'}`);
+        setIsSubmitting(false);
+    }
+    
+    console.log('=== FORM SUBMISSION END ===');
+};
 
     // Показуємо loading поки компонент не змонтований на клієнті
     if (!isMounted) {
